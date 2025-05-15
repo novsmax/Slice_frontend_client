@@ -21,12 +21,6 @@ const CartItem = ({ item }) => {
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(item.quantity);
 
-  const imageUrl = item.product_id && item.product_image 
-    ? (item.product_image.startsWith('http') 
-      ? item.product_image 
-      : `${process.env.REACT_APP_API_BASE_URL}${item.product_image}`)
-    : 'https://via.placeholder.com/50x50?text=No+Image';
-
   const handleQuantityChange = (event) => {
     const newQuantity = parseInt(event.target.value);
     if (!isNaN(newQuantity) && newQuantity > 0) {
@@ -78,34 +72,39 @@ const CartItem = ({ item }) => {
   return (
     <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
       <TableCell>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box
-            component="img"
-            sx={{
-              width: 50,
-              height: 50,
-              objectFit: 'contain',
-              mr: 2,
-              borderRadius: 1
-            }}
-            src={imageUrl}
-            alt={item.product_name}
-          />
-          <Typography variant="body1">
-            {item.product_name}
-          </Typography>
-        </Box>
+        <Typography variant="body1">
+          {item.product_name}
+        </Typography>
       </TableCell>
       <TableCell align="right">
         {item.price.toLocaleString('ru-RU')} ₽
       </TableCell>
       <TableCell align="center">
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ButtonGroup size="small" variant="outlined">
+          <ButtonGroup 
+            variant="outlined" 
+            aria-label="quantity control"
+            sx={{ 
+              '& .MuiButtonGroup-grouped': {
+                minWidth: '35px',
+                height: '35px',
+                borderRadius: '4px !important'
+              }
+            }}
+          >
             <Button 
               onClick={handleDecrement}
               disabled={loading || quantity <= 1}
-            >
+              sx={{ 
+                borderRadius: '50% 0 0 50%',
+                padding: 1,
+                minWidth: '35px',
+                bgcolor: 'background.paper',
+                '&:hover': {
+                  bgcolor: 'action.hover'
+                }
+              }}
+             >
               <RemoveIcon fontSize="small" />
             </Button>
             <TextField
@@ -113,10 +112,40 @@ const CartItem = ({ item }) => {
               value={quantity}
               onChange={handleQuantityChange}
               onBlur={handleUpdateQuantity}
-              sx={{ width: '60px', '& input': { textAlign: 'center' } }}
-              inputProps={{ min: 1, style: { padding: '4px', textAlign: 'center' } }}
+              sx={{ 
+                width: '50px', 
+                '& .MuiOutlinedInput-root': {
+                  height: '35px',
+                  '& fieldset': {
+                    border: 'none',
+                    borderTop: '1px solid rgba(0, 0, 0, 0.23)',
+                    borderBottom: '1px solid rgba(0, 0, 0, 0.23)',
+                  },
+                  '& input': { 
+                    textAlign: 'center', 
+                    padding: '4px 0',
+                    fontWeight: 'bold'
+                  }
+                }
+              }}
+              inputProps={{ 
+                min: 1, 
+                style: { textAlign: 'center' }
+              }}
             />
-            <Button onClick={handleIncrement} disabled={loading}>
+            <Button 
+              onClick={handleIncrement} 
+              disabled={loading}
+              sx={{ 
+                borderRadius: '0 50% 50% 0',
+                padding: 0,
+                minWidth: '35px',
+                bgcolor: 'background.paper',
+                '&:hover': {
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
               <AddIcon fontSize="small" />
             </Button>
           </ButtonGroup>

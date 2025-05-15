@@ -23,7 +23,7 @@ import {
   FavoriteBorder as FavoriteBorderIcon
 } from '@mui/icons-material';
 import { useCart } from '../contexts/CartContext';
-import { api } from '../api/api';
+import { api, API_BASE_URL } from '../api/api';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -84,6 +84,13 @@ const ProductDetailPage = () => {
     setSelectedImage(image);
   };
 
+  // Функция для получения полного URL изображения
+  const getImageUrl = (image) => {
+    return image.image_url.startsWith('http')
+      ? image.image_url
+      : `${API_BASE_URL}${image.image_url}`;
+  };
+
   if (loading) {
     return (
       <Container sx={{ py: 4 }}>
@@ -139,12 +146,6 @@ const ProductDetailPage = () => {
       </Container>
     );
   }
-
-  const getImageUrl = (image) => {
-    return image.image_url.startsWith('http')
-      ? image.image_url
-      : `${process.env.REACT_APP_API_BASE_URL}${image.image_url}`;
-  };
 
   return (
     <Container sx={{ py: 4 }}>

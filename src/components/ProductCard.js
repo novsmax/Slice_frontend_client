@@ -3,6 +3,7 @@ import { Card, CardMedia, CardContent, CardActions, Typography, Button, Rating, 
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { API_BASE_URL } from '../api/api';
 
 const ProductCard = ({ product }) => {
   const { addToCart, loading } = useCart();
@@ -14,7 +15,7 @@ const ProductCard = ({ product }) => {
   const imageUrl = mainImage
     ? (mainImage.image_url.startsWith('http')
       ? mainImage.image_url
-      : `${process.env.REACT_APP_API_BASE_URL}${mainImage.image_url}`)
+      : `${API_BASE_URL}${mainImage.image_url}`)
     : 'https://via.placeholder.com/300x200?text=Нет+изображения';
 
   const handleAddToCart = async () => {

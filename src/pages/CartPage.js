@@ -128,10 +128,14 @@ const CartPage = () => {
   }
   
   return (
-    <Box sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Корзина
-      </Typography>
+    <Box sx={{ py: 4 }} padding={3}>
+      {/* Выровненный заголовок с иконкой */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <ShoppingCartIcon sx={{ mr: 1, color: 'primary.main', fontSize: 32 }} />
+        <Typography variant="h4" component="h1">
+          Корзина
+        </Typography>
+      </Box>
       
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>

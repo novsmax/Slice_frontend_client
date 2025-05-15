@@ -20,7 +20,7 @@ import {
   LocalShipping as ShippingIcon,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import { api } from '../api/api';
+import { api, API_BASE_URL } from '../api/api';
 import { useAuth } from '../contexts/AuthContext';
 
 // Функция для отображения статуса заказа
@@ -271,18 +271,6 @@ const OrderDetailPage = () => {
           {order.items.map((item, index) => (
             <React.Fragment key={item.id}>
               <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-                <Box
-                  component="img"
-                  src={
-                    item.product_image 
-                      ? (item.product_image.startsWith('http') 
-                        ? item.product_image 
-                        : `${process.env.REACT_APP_API_BASE_URL}${item.product_image}`) 
-                      : 'https://via.placeholder.com/50x50?text=No+Image'
-                  }
-                  alt={item.product_name}
-                  sx={{ width: 50, height: 50, objectFit: 'contain', mr: 2 }}
-                />
                 
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="body1">
@@ -306,28 +294,25 @@ const OrderDetailPage = () => {
         </Paper>
         
         {/* Итоговая сумма */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 5 }}>
-          <Typography variant="h6" sx={{ mr: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
+          {['new', 'processing'].includes(order.status) && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleCancelOrder}
+                disabled={loading}
+              >
+                Отменить заказ
+              </Button>
+            )}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h6" sx={{ mr: 2 }}>
             Итого:
           </Typography>
-          <Typography variant="h5" fontWeight="bold" color="primary">
-            {order.total_amount.toLocaleString('ru-RU')} ₽
-          </Typography>
-          {['new', 'processing'].includes(order.status) && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleCancelOrder}
-              disabled={loading}
-            >
-              Отменить заказ
-            </Button>
-          )}
-        </Box>
-        
-        {/* Кнопки действий */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          
+            <Typography variant="h5" fontWeight="bold" color="primary">
+              {order.total_amount.toLocaleString('ru-RU')} ₽
+            </Typography>
+          </Box>
         </Box>
       </Paper>
     </Container>

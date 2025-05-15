@@ -19,7 +19,7 @@ import {
 import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { api } from '../api/api';
+import { api, API_BASE_URL } from '../api/api';
 
 const CatalogPage = () => {
   const [products, setProducts] = useState([]);
@@ -38,7 +38,6 @@ const CatalogPage = () => {
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'));
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || '');
-  const [showFilters, setShowFilters] = useState(true);
   
   // Загрузка фильтров (категорий и брендов)
   useEffect(() => {
@@ -90,6 +89,21 @@ const CatalogPage = () => {
         
         const response = await api.get(url);
         
+        // Готовим данные об изображениях для товаров
+        const productsWithImages = response.data.items.map(product => {
+          if (product.images && product.images.length > 0) {
+            // Добавляем обработку URL для изображений
+            const processedImages = product.images.map(image => ({
+              ...image,
+              image_url: image.image_url.startsWith('http') 
+                ? image.image_url 
+                : `${API_BASE_URL}${image.image_url}`
+            }));
+            return { ...product, images: processedImages };
+          }
+          return product;
+        });
+        
         // Обновляем URL с параметрами поиска
         const params = new URLSearchParams();
         params.set('page', currentPage.toString());
@@ -98,8 +112,8 @@ const CatalogPage = () => {
         if (selectedBrand) params.set('brand', selectedBrand);
         setSearchParams(params);
         
-        // Обновляем состояние
-        setProducts(response.data.items || []);
+        // Обновляем состояние с обработанными изображениями
+        setProducts(productsWithImages);
         setTotalPages(response.data.pages || 1);
       } catch (err) {
         console.error('Error fetching products:', err);
