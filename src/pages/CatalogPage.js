@@ -16,10 +16,10 @@ import {
   Select,
   Button
 } from '@mui/material';
-import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { api, API_BASE_URL } from '../api/api';
+import { api, SERVER_URL } from '../api/api';
 
 const CatalogPage = () => {
   const [products, setProducts] = useState([]);
@@ -88,21 +88,42 @@ const CatalogPage = () => {
         url += `&is_active=true`;
         
         const response = await api.get(url);
+        const productsData = response.data.items;
         
-        // Готовим данные об изображениях для товаров
-        const productsWithImages = response.data.items.map(product => {
+        // Обработка изображений - так же, как на странице деталей товара
+        const processedProducts = productsData.map(product => {
+          // Обрабатываем изображения для каждого товара
           if (product.images && product.images.length > 0) {
-            // Добавляем обработку URL для изображений
-            const processedImages = product.images.map(image => ({
-              ...image,
-              image_url: image.image_url.startsWith('http') 
-                ? image.image_url 
-                : `${API_BASE_URL}${image.image_url}`
-            }));
-            return { ...product, images: processedImages };
+            const processedImages = product.images.map(img => {
+              const fullImageUrl = img.image_url.startsWith('http') 
+                ? img.image_url 
+                : `${SERVER_URL}${img.image_url.startsWith('/') ? img.image_url : '/' + img.image_url}`;
+                
+              return {
+                ...img,
+                image_url: fullImageUrl
+              };
+            });
+            
+            return {
+              ...product,
+              images: processedImages
+            };
           }
+          
           return product;
         });
+        
+        // Добавляем отладочную информацию
+        if (processedProducts.length > 0) {
+          console.log('Первый обработанный товар:', processedProducts[0]);
+          if (processedProducts[0].images && processedProducts[0].images.length > 0) {
+            console.log('Первое изображение товара:', processedProducts[0].images[0]);
+          }
+        }
+        
+        setProducts(processedProducts);
+        setTotalPages(response.data.pages || 1);
         
         // Обновляем URL с параметрами поиска
         const params = new URLSearchParams();
@@ -112,9 +133,6 @@ const CatalogPage = () => {
         if (selectedBrand) params.set('brand', selectedBrand);
         setSearchParams(params);
         
-        // Обновляем состояние с обработанными изображениями
-        setProducts(productsWithImages);
-        setTotalPages(response.data.pages || 1);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('Не удалось загрузить товары');

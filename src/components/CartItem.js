@@ -80,75 +80,77 @@ const CartItem = ({ item }) => {
         {item.price.toLocaleString('ru-RU')} ₽
       </TableCell>
       <TableCell align="center">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ButtonGroup 
-            variant="outlined" 
-            aria-label="quantity control"
-            sx={{ 
-              '& .MuiButtonGroup-grouped': {
-                minWidth: '35px',
-                height: '35px',
-                borderRadius: '4px !important'
-              }
-            }}
-          >
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            border: '1px solid rgba(0, 0, 0, 0.23)',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}>
             <Button 
               onClick={handleDecrement}
               disabled={loading || quantity <= 1}
               sx={{ 
-                borderRadius: '50% 0 0 50%',
-                padding: 1,
-                minWidth: '35px',
-                bgcolor: 'background.paper',
-                '&:hover': {
-                  bgcolor: 'action.hover'
-                }
+                minWidth: '40px',
+                height: '36px',
+                borderRadius: 0,
+                borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+                padding: 0
               }}
-             >
+            >
               <RemoveIcon fontSize="small" />
             </Button>
+            
             <TextField
               size="small"
               value={quantity}
               onChange={handleQuantityChange}
               onBlur={handleUpdateQuantity}
               sx={{ 
-                width: '50px', 
+                width: '50px',
                 '& .MuiOutlinedInput-root': {
-                  height: '35px',
+                  height: '36px',
                   '& fieldset': {
                     border: 'none',
-                    borderTop: '1px solid rgba(0, 0, 0, 0.23)',
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.23)',
                   },
                   '& input': { 
                     textAlign: 'center', 
-                    padding: '4px 0',
-                    fontWeight: 'bold'
+                    padding: '8px 0',
+                    fontWeight: 'medium'
                   }
+                },
+                '& .MuiInputBase-root': {
+                  borderRadius: 0
                 }
               }}
               inputProps={{ 
                 min: 1, 
-                style: { textAlign: 'center' }
+                style: { 
+                  textAlign: 'center',
+                  fontSize: '15px'
+                }
               }}
             />
+            
             <Button 
               onClick={handleIncrement} 
               disabled={loading}
               sx={{ 
-                borderRadius: '0 50% 50% 0',
-                padding: 0,
-                minWidth: '35px',
-                bgcolor: 'background.paper',
-                '&:hover': {
-                  bgcolor: 'action.hover'
-                }
+                minWidth: '40px',
+                height: '36px',
+                borderRadius: 0,
+                borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
+                padding: 0
               }}
             >
               <AddIcon fontSize="small" />
             </Button>
-          </ButtonGroup>
+          </Box>
         </Box>
       </TableCell>
       <TableCell align="right">

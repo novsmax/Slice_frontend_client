@@ -23,7 +23,11 @@ import {
   FavoriteBorder as FavoriteBorderIcon
 } from '@mui/icons-material';
 import { useCart } from '../contexts/CartContext';
-import { api, API_BASE_URL } from '../api/api';
+import { api, SERVER_URL } from '../api/api';
+
+// Локальная заглушка изображения, которая точно загрузится
+// Base64-encoded пустое изображение с текстом "Нет фото"
+const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMzAwIDIwMCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBkeT0iLjM1ZW0iPtCd0LXRgiDRhNC+0YLQvjwvdGV4dD48L3N2Zz4=';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -36,6 +40,9 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
   const [tabValue, setTabValue] = useState(0);
+  
+  // Для хранения обработанных URL-ов изображений
+  const [imageUrls, setImageUrls] = useState({});
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,10 +51,15 @@ const ProductDetailPage = () => {
         setError(null);
 
         const response = await api.get(`/products/${id}`);
-        setProduct(response.data);
+        const productData = response.data;
+        
+        console.log('Product data:', productData);
+        
+        setProduct(productData);
 
-        if (response.data.images && response.data.images.length > 0) {
-          const primaryImage = response.data.images.find(img => img.is_primary) || response.data.images[0];
+        // Выбираем основное изображение, если есть
+        if (productData.images && productData.images.length > 0) {
+          const primaryImage = productData.images.find(img => img.is_primary) || productData.images[0];
           setSelectedImage(primaryImage);
         }
       } catch (err) {
@@ -60,6 +72,48 @@ const ProductDetailPage = () => {
 
     fetchProduct();
   }, [id]);
+
+  // Функция получения URL изображения с обработкой ошибок
+  const getImageUrl = (image) => {
+    // Используем кэшированное значение, если есть
+    if (imageUrls[image.id]) {
+      return imageUrls[image.id];
+    }
+    
+    // Возвращаем заглушку, если нет image_url
+    if (!image.image_url) {
+      return PLACEHOLDER_IMAGE;
+    }
+    
+    // Формируем полный URL
+    try {
+      const fullUrl = image.image_url.startsWith('http')
+        ? image.image_url
+        : `${SERVER_URL}${image.image_url.startsWith('/') ? image.image_url : '/' + image.image_url}`;
+      
+      // Сохраняем в кэш
+      setImageUrls(prev => ({
+        ...prev,
+        [image.id]: fullUrl
+      }));
+      
+      return fullUrl;
+    } catch (err) {
+      console.error('Error processing image URL:', err);
+      return PLACEHOLDER_IMAGE;
+    }
+  };
+
+  // Обработчик ошибки загрузки изображения
+  const handleImageError = (imageId) => {
+    console.log(`Image loading failed for ID: ${imageId}, using placeholder`);
+    
+    // Устанавливаем заглушку в кэш для этого изображения
+    setImageUrls(prev => ({
+      ...prev,
+      [imageId]: PLACEHOLDER_IMAGE
+    }));
+  };
 
   const handleQuantityChange = (event) => {
     const value = parseInt(event.target.value);
@@ -82,13 +136,6 @@ const ProductDetailPage = () => {
 
   const handleImageSelect = (image) => {
     setSelectedImage(image);
-  };
-
-  // Функция для получения полного URL изображения
-  const getImageUrl = (image) => {
-    return image.image_url.startsWith('http')
-      ? image.image_url
-      : `${API_BASE_URL}${image.image_url}`;
   };
 
   if (loading) {
@@ -175,13 +222,14 @@ const ProductDetailPage = () => {
             {selectedImage ? (
               <Box
                 component="img"
-                src={getImageUrl(selectedImage)}
+                src={imageUrls[selectedImage.id] || getImageUrl(selectedImage)}
                 alt={selectedImage.alt_text || product.name}
                 sx={{
                   maxWidth: '100%',
                   maxHeight: 400,
                   objectFit: 'contain'
                 }}
+                onError={() => handleImageError(selectedImage.id)}
               />
             ) : (
               <Typography variant="body1" color="text.secondary">
@@ -210,7 +258,7 @@ const ProductDetailPage = () => {
                 <Box
                   key={image.id}
                   component="img"
-                  src={getImageUrl(image)}
+                  src={imageUrls[image.id] || getImageUrl(image)}
                   alt={image.alt_text || 'Thumbnail'}
                   onClick={() => handleImageSelect(image)}
                   sx={{
@@ -224,6 +272,7 @@ const ProductDetailPage = () => {
                     p: 1,
                     backgroundColor: '#f5f5f5'
                   }}
+                  onError={() => handleImageError(image.id)}
                 />
               ))}
             </Box>
