@@ -25,8 +25,6 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { api, SERVER_URL } from '../api/api';
 
-// Локальная заглушка изображения, которая точно загрузится
-// Base64-encoded пустое изображение с текстом "Нет фото"
 const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMzAwIDIwMCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBkeT0iLjM1ZW0iPtCd0LXRgiDRhNC+0YLQvjwvdGV4dD48L3N2Zz4=';
 
 const ProductDetailPage = () => {
@@ -41,7 +39,6 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   
-  // Для хранения обработанных URL-ов изображений
   const [imageUrls, setImageUrls] = useState({});
 
   useEffect(() => {
@@ -57,7 +54,6 @@ const ProductDetailPage = () => {
         
         setProduct(productData);
 
-        // Выбираем основное изображение, если есть
         if (productData.images && productData.images.length > 0) {
           const primaryImage = productData.images.find(img => img.is_primary) || productData.images[0];
           setSelectedImage(primaryImage);
@@ -73,25 +69,20 @@ const ProductDetailPage = () => {
     fetchProduct();
   }, [id]);
 
-  // Функция получения URL изображения с обработкой ошибок
   const getImageUrl = (image) => {
-    // Используем кэшированное значение, если есть
     if (imageUrls[image.id]) {
       return imageUrls[image.id];
     }
     
-    // Возвращаем заглушку, если нет image_url
     if (!image.image_url) {
       return PLACEHOLDER_IMAGE;
     }
     
-    // Формируем полный URL
     try {
       const fullUrl = image.image_url.startsWith('http')
         ? image.image_url
         : `${SERVER_URL}${image.image_url.startsWith('/') ? image.image_url : '/' + image.image_url}`;
       
-      // Сохраняем в кэш
       setImageUrls(prev => ({
         ...prev,
         [image.id]: fullUrl
@@ -104,11 +95,9 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Обработчик ошибки загрузки изображения
   const handleImageError = (imageId) => {
     console.log(`Image loading failed for ID: ${imageId}, using placeholder`);
     
-    // Устанавливаем заглушку в кэш для этого изображения
     setImageUrls(prev => ({
       ...prev,
       [imageId]: PLACEHOLDER_IMAGE

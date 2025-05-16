@@ -1,3 +1,4 @@
+// src/pages/HomePage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -8,7 +9,8 @@ import {
   Button,
   InputAdornment,
   Paper,
-  Grid
+  Grid,
+  Avatar
 } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import HomeAdvantages from '../components/HomeAdvantages';
@@ -40,51 +42,75 @@ const HomePage = () => {
       <Box 
         sx={{ 
           py: { xs: 6, md: 10 }, 
-          textAlign: 'center',
           background: 'linear-gradient(180deg, #ffdcd1 0%, rgba(255, 220, 209, 0.4) 100%)',
           borderRadius: { xs: 0, md: '0 0 30px 30px' },
           mb: 6
         }}
       >
         <Container maxWidth="md">
-          <Typography 
-            variant="h2" 
-            component="h1" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 'bold', 
-              color: '#724242',
-              mb: 2,
-              fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' }
-            }}
-          >
-            SLICE
-          </Typography>
-          
-          <Typography 
-            variant="h5" 
-            component="h2" 
-            gutterBottom 
-            sx={{ 
-              color: '#724242',
-              mb: 2
-            }}
-          >
-            Техника для современной жизни
-          </Typography>
-          
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              maxWidth: 600, 
-              mx: 'auto', 
-              mb: 6, 
-              color: '#724242',
-              fontSize: { xs: '1rem', md: '1.1rem' }
-            }}
-          >
-            Высококачественная электроника от ведущих мировых производителей по доступным ценам
-          </Typography>
+          {/* Заменяем текстовый блок на Grid-контейнер */}
+          <Grid container spacing={4} alignItems="center">
+            {/* Левая колонка с вашим фото */}
+            <Grid item xs={12} md={4} sx={{ 
+              display: 'flex', 
+              justifyContent: { xs: 'center', md: 'flex-end' },
+              mb: { xs: 3, md: 0 } 
+            }}>
+              <Avatar
+                src="\images\slice_logo.jpg"
+                alt="Ваше фото"
+                sx={{ 
+                  width: { xs: 180, md: 220 },
+                  height: { xs: 180, md: 220 },
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  border: '5px solid white'
+                }}
+              />
+            </Grid>
+            
+            {/* Правая колонка с текстом */}
+            <Grid item xs={12} md={8} sx={{ 
+              textAlign: { xs: 'center', md: 'left' } 
+            }}>
+              <Typography 
+                variant="h2" 
+                component="h1" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 'bold', 
+                  color: '#724242',
+                  mb: 2,
+                  fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' }
+                }}
+              >
+                SLICE
+              </Typography>
+              
+              <Typography 
+                variant="h5" 
+                component="h2" 
+                gutterBottom 
+                sx={{ 
+                  color: '#724242',
+                  mb: 2
+                }}
+              >
+                Техника для современной жизни
+              </Typography>
+              
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  mb: 4, 
+                  color: '#724242',
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  maxWidth: { md: '90%' }
+                }}
+              >
+                Высококачественная электроника от ведущих мировых производителей по доступным ценам
+              </Typography>
+            </Grid>
+          </Grid>
           
           {/* Строка поиска */}
           <Box 
@@ -94,7 +120,8 @@ const HomePage = () => {
               mb: 4,
               mx: 'auto',
               maxWidth: 700,
-              px: 2
+              px: 2,
+              mt: { xs: 4, md: 6 }
             }}
           >
             <TextField
@@ -144,19 +171,21 @@ const HomePage = () => {
           </Box>
           
           {/* Кнопка перехода в каталог */}
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => navigate('/products')}
-            sx={{ 
-              mt: 2,
-              borderRadius: 3,
-              px: 3,
-              py: 1
-            }}
-          >
-            Перейти в каталог
-          </Button>
+          <Box sx={{ textAlign: 'center' }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate('/products')}
+              sx={{ 
+                mt: 2,
+                borderRadius: 3,
+                px: 3,
+                py: 1
+              }}
+            >
+              Перейти в каталог
+            </Button>
+          </Box>
         </Container>
       </Box>
       

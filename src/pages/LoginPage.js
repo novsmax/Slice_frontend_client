@@ -26,17 +26,14 @@ const LoginPage = () => {
   const location = useLocation();
   const { login, loading, error } = useAuth();
   
-  // Состояние для формы
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   
-  // Обработчик отправки формы
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Валидация формы
     const errors = {};
     if (!username.trim()) {
       errors.username = 'Введите имя пользователя';

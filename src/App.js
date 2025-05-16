@@ -3,15 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import theme from './theme';
 
-// Contexts
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 
-// Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-// Pages
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import LoginPage from './pages/LoginPage';
@@ -21,13 +18,10 @@ import OrderDetailPage from './pages/OrderDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  // Проверяем наличие токена в localStorage
   const isAuthenticated = localStorage.getItem('token') !== null;
   
   if (!isAuthenticated) {
-    // Если пользователь не авторизован, перенаправляем на страницу логина
     return <Navigate to="/login" replace />;
   }
   

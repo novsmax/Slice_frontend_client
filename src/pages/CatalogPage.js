@@ -39,37 +39,32 @@ const CatalogPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || '');
   
-  // Загрузка фильтров (категорий и брендов)
   useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        setLoadingFilters(true);
-        
-        // Загружаем категории
-        const categoriesResponse = await api.get('/categories?per_page=100');
-        setCategories(categoriesResponse.data.items || []);
-        
-        // Загружаем бренды
-        const brandsResponse = await api.get('/brands?per_page=100');
-        setBrands(brandsResponse.data.items || []);
-      } catch (err) {
-        console.error('Error fetching filters:', err);
-      } finally {
-        setLoadingFilters(false);
-      }
-    };
+      const fetchFilters = async () => {
+        try {
+          setLoadingFilters(true);
+          
+          const categoriesResponse = await api.get('/categories?per_page=100');
+          setCategories(categoriesResponse.data.items || []);
+          
+          const brandsResponse = await api.get('/brands?per_page=100');
+          setBrands(brandsResponse.data.items || []);
+        } catch (err) {
+          console.error('Error fetching filters:', err);
+        } finally {
+          setLoadingFilters(false);
+        }
+      };
+      
+      fetchFilters();
+    }, []);
     
-    fetchFilters();
-  }, []);
-  
-  // Загрузка товаров
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Формируем параметры запроса
         let url = `/products?page=${currentPage}&per_page=12`;
         
         if (searchQuery) {
@@ -84,48 +79,16 @@ const CatalogPage = () => {
           url += `&brand_id=${selectedBrand}`;
         }
 
-        // Добавляем фильтр активных товаров
         url += `&is_active=true`;
         
         const response = await api.get(url);
         const productsData = response.data.items;
         
-        // Обработка изображений - так же, как на странице деталей товара
-        const processedProducts = productsData.map(product => {
-          // Обрабатываем изображения для каждого товара
-          if (product.images && product.images.length > 0) {
-            const processedImages = product.images.map(img => {
-              const fullImageUrl = img.image_url.startsWith('http') 
-                ? img.image_url 
-                : `${SERVER_URL}${img.image_url.startsWith('/') ? img.image_url : '/' + img.image_url}`;
-                
-              return {
-                ...img,
-                image_url: fullImageUrl
-              };
-            });
-            
-            return {
-              ...product,
-              images: processedImages
-            };
-          }
-          
-          return product;
-        });
-        
-        // Добавляем отладочную информацию
-        if (processedProducts.length > 0) {
-          console.log('Первый обработанный товар:', processedProducts[0]);
-          if (processedProducts[0].images && processedProducts[0].images.length > 0) {
-            console.log('Первое изображение товара:', processedProducts[0].images[0]);
-          }
-        }
+        const processedProducts = productsData;
         
         setProducts(processedProducts);
         setTotalPages(response.data.pages || 1);
         
-        // Обновляем URL с параметрами поиска
         const params = new URLSearchParams();
         params.set('page', currentPage.toString());
         if (searchQuery) params.set('query', searchQuery);
@@ -143,36 +106,29 @@ const CatalogPage = () => {
     
     fetchProducts();
   }, [currentPage, searchQuery, selectedCategory, selectedBrand, setSearchParams]);
-  
-  // Обработчик изменения страницы
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
     window.scrollTo(0, 0); // Скролл наверх при смене страницы
   };
   
-  // Обработчик изменения поискового запроса
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
   
-  // Обработчик отправки поискового запроса
   const handleSearch = () => {
     setCurrentPage(1); // Сбрасываем на первую страницу при поиске
   };
   
-  // Обработчик изменения категории
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
     setCurrentPage(1);
   };
   
-  // Обработчик изменения бренда
   const handleBrandChange = (event) => {
     setSelectedBrand(event.target.value);
     setCurrentPage(1);
   };
   
-  // Обработчик сброса фильтров
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');

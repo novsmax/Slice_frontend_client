@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Задаем основной URL API и базовый URL для сервера
 export const API_URL = 'http://localhost:8000/api/v1';
 export const SERVER_URL = 'http://localhost:8000';
 
@@ -137,5 +136,3 @@ export const orderApi = {
     }
   }
 };
-
-// Экспортируем константу SERVER_URL для использования в других компонентах

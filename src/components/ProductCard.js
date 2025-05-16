@@ -1,30 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardMedia, CardContent, CardActions, Typography, Button, Box } from '@mui/material';
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { api } from '../api/api';
 
-// Локальная заглушка изображения, которая точно загрузится
-// Base64-encoded пустое изображение с текстом "Нет фото"
 const PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMzAwIDIwMCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBkeT0iLjM1ZW0iPtCd0LXRgiDRhNC+0YLQvjwvdGV4dD48L3N2Zz4=';
 
 const ProductCard = ({ product }) => {
   const { addToCart, loading } = useCart();
+  const [imageUrl, setImageUrl] = useState(PLACEHOLDER_IMAGE);
 
-  // Находим основное изображение — либо то, которое помечено как primary, либо первое
-  const mainImage = product.images && product.images.length > 0
-    ? product.images.find(img => img.is_primary) || product.images[0]
-    : null;
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      if (!product || !product.id) return;
+      
+      try {
+        const response = await api.get(`/products/${product.id}`);
+        
+        if (response.data.images && response.data.images.length > 0) {
+          const mainImage = response.data.images.find(img => img.is_primary) || response.data.images[0];
+          
+          if (mainImage && mainImage.image_url) {
+            const fullImageUrl = mainImage.image_url.startsWith('http') 
+              ? mainImage.image_url 
+              : `http://localhost:8000${mainImage.image_url.startsWith('/') ? mainImage.image_url : '/' + mainImage.image_url}`;
+            
+            setImageUrl(fullImageUrl);
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching details for product ${product.id}:`, error);
+      }
+    };
 
-  // По умолчанию используем локальную заглушку
-  const [imageUrl, setImageUrl] = React.useState(PLACEHOLDER_IMAGE);
-
-  // Устанавливаем URL изображения после монтирования компонента
-  React.useEffect(() => {
-    if (mainImage && mainImage.image_url) {
-      setImageUrl(mainImage.image_url);
-    }
-  }, [mainImage]);
+    fetchProductDetails();
+  }, [product]);
 
   const handleAddToCart = async () => {
     try {
@@ -34,11 +45,9 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Обработчик ошибки загрузки изображения
   const handleImageError = () => {
-    // Устанавливаем локальную заглушку и не пытаемся загружать снова
     if (imageUrl !== PLACEHOLDER_IMAGE) {
-      console.log(`Не удалось загрузить изображение для товара ${product.name}. Использую заглушку.`);
+      console.log(`Failed to load image for product ${product.name}. Using placeholder.`);
       setImageUrl(PLACEHOLDER_IMAGE);
     }
   };
